@@ -43,7 +43,7 @@ for name in df["NOC"].unique():
         country_df["Delta_Silver"] = country_df["Silver"].diff().fillna(value=0)
         country_df["Delta_Bronze"] = country_df["Bronze"].diff().fillna(value=0)
         country_df["Delta_Total"]  = country_df["total_medals"].diff().fillna(value=0)
-        
+        #plot_medal_counts(name, country_df)
         """
         train_df = country_df.iloc[:len(country_df)-4,:]
         last_date = train_df["Year"].max()
@@ -55,7 +55,7 @@ for name in df["NOC"].unique():
         plt.plot([last_date+4*x for x in range(1,6)], forecast)
         plt.show()
         plt.clf()
-        #plot_medal_counts(name, country_df)
+        
         """
         
 
