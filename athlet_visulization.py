@@ -23,8 +23,8 @@ new_df["num_events"] = counts
 new_df = new_df.reset_index()
 
 
-
 print(new_df[new_df["num_events"]>=2].head(40))
+
 
 
 
