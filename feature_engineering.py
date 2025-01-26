@@ -210,6 +210,36 @@ def country_rank(olympics_df:pd.DataFrame, medal_counts:pd.DataFrame, game_parti
 
     return olympics_df
 
+def country_female_athletes(olympic_df:pd.DataFrame, athletes_data:pd.DataFrame, game_participating_countries:dict, all_ioc:pd.DataFrame):
+    '''
+    number of female athletes representing a country
+    '''
+
+    female_athletes_per_country = []
+
+    for year in game_participating_countries:
+        print(f'Processing number of female athletes for every country in {year} olympics...')
+        countries = game_participating_countries[year]
+        for country in countries:
+            curr_year_athletes = athletes_data.loc[(athletes_data['Year'] == year) & (athletes_data['NOC'] == all_ioc[country]) & (athletes_data['Sex'] == 'F')]
+            female_athletes_per_country.append(len(curr_year_athletes["Name"].unique()))
+
+    olympic_df['country_female_athletes'] = female_athletes_per_country
+    return olympic_df
+
+def country_male_athletes(olympic_df:pd.DataFrame, athletes_data:pd.DataFrame, game_participating_countries:dict, all_ioc:pd.DataFrame):
+    male_athletes_per_country = []
+
+    for year in game_participating_countries:
+        print(f'Processing number of male athletes for every country in {year} olympics...')
+        countries = game_participating_countries[year]
+        for country in countries:
+            male_names = athletes_data.loc[(athletes_data['Year'] == year) & (athletes_data['NOC'] == all_ioc[country]) & (athletes_data['Sex'] == 'M')]
+            male_athletes_per_country.append(len(male_names['Name'].unique()))
+
+    olympic_df['country_male_athletes'] = male_athletes_per_country
+    return olympic_df
+
 def main():    
     hosts, medal_counts, all_ioc, athletes_data, game_host_countries, game_participating_countries, programs_data = init_basics()
 
@@ -242,6 +272,12 @@ def main():
 
     if 'country_ranking' not in olympics_df:
         olympics_df = country_rank(olympics_df, medal_counts, game_participating_countries)
+
+    if 'country_female_athletes' not in olympics_df:
+        olympics_df = country_female_athletes(olympics_df, athletes_data, game_participating_countries, all_ioc)
+
+    if 'country_male_athletes' not in olympics_df:
+        olympics_df = country_male_athletes(olympics_df, athletes_data, game_participating_countries, all_ioc)
 
     # create game_<sport>_events columns
     sports = programs_data['Sport'].unique()
