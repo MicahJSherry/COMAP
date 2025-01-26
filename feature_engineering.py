@@ -155,6 +155,61 @@ def game_sport_events(olympics_df:pd.DataFrame, programs_data:pd.DataFrame, game
     print(f'Updated dataframe:\n{olympics_df.head(n=25)}')
     return olympics_df
 
+def country_golds(olympics_df:pd.DataFrame, medal_counts:pd.DataFrame, game_participating_countries:dict):
+    golds_per_country = []
+
+    print('Engineering country_golds feature...')
+
+    for year in game_participating_countries:
+        countries = game_participating_countries[year]
+        for country in countries:
+            curr_games_data = medal_counts.loc[(medal_counts['Year'] == year) & (medal_counts['NOC'] == country)]
+            golds_per_country.append(curr_games_data['Gold'].values[0])
+
+    olympics_df['country_golds'] = golds_per_country
+    print(f'Updated dataframe:\n{olympics_df.head(n=25)}')
+    return olympics_df
+
+def country_silvers(olympics_df:pd.DataFrame, medal_counts:pd.DataFrame, game_participating_countries:dict):
+    silvers_per_country = []
+
+    print('Engineering country_silvers feature...')
+
+    for year in game_participating_countries:
+        countries = game_participating_countries[year]
+        for country in countries:
+            curr_games_data = medal_counts.loc[(medal_counts['Year'] == year) & (medal_counts['NOC'] == country)]
+            silvers_per_country.append(curr_games_data['Silver'].values[0])
+    olympics_df['country_silvers'] = silvers_per_country
+    
+    return olympics_df
+
+def country_bronzes(olympics_df:pd.DataFrame, medal_counts:pd.DataFrame, game_participating_countries:dict):
+    bronzes_per_country = []
+
+    print('Engineering country_bronzes feature...')
+
+    for year in game_participating_countries:
+        countries = game_participating_countries[year]
+        for country in countries:
+            curr_games_data = medal_counts.loc[(medal_counts['Year'] == year) & (medal_counts['NOC'] == country)]
+            bronzes_per_country.append(curr_games_data['Bronze'].values[0])
+    olympics_df['country_bronzes'] = bronzes_per_country
+
+    return olympics_df
+
+def country_rank(olympics_df:pd.DataFrame, medal_counts:pd.DataFrame, game_participating_countries:dict):
+    rank_per_country = []
+
+    for year in game_participating_countries:
+        countries = game_participating_countries[year]
+        for country in countries:
+            curr_game_data = medal_counts.loc[(medal_counts['Year'] == year) & (medal_counts['NOC'] == country)]
+            rank_per_country.append(curr_game_data['Rank'].values[0])
+    olympics_df["country_ranking"] = rank_per_country
+
+    return olympics_df
+
 def main():    
     hosts, medal_counts, all_ioc, athletes_data, game_host_countries, game_participating_countries, programs_data = init_basics()
 
@@ -175,6 +230,18 @@ def main():
     # create country_total_appearances
     if 'country_total_appearances' not in olympics_df:
         country_total_appearances(olympics_df)
+
+    if 'country_golds' not in olympics_df:
+        olympics_df = country_golds(olympics_df, medal_counts, game_participating_countries)
+
+    if 'country_silvers' not in olympics_df:
+        olympics_df = country_silvers(olympics_df, medal_counts, game_participating_countries)
+
+    if 'country_bronzes' not in olympics_df:
+        olympics_df = country_bronzes(olympics_df, medal_counts, game_participating_countries)
+
+    if 'country_ranking' not in olympics_df:
+        olympics_df = country_rank(olympics_df, medal_counts, game_participating_countries)
 
     # create game_<sport>_events columns
     sports = programs_data['Sport'].unique()
