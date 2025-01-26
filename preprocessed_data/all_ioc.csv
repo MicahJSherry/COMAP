@@ -229,22 +229,18 @@ MAL,Malaya
 NBO,North Borneo
 NRH,Northern Rhodesia
 RAU,United Arab Republic
-RHO,Rhodesia/Southern Rhodesia/Federation of Rhodesia and Nyasaland
+RHO,Rhodesia
 ROC,Republic of China
 RU1,Russian Empire
 SAA,Saar
-UAR,United Arab Republic
 VOL,Upper Volta
 WSM,Western Samoa
-YAR,North Yemen code from Yemen Arab Republic
-YMD,South Yemen code from Yemen Democratic Republic
-ZAI,Zaire From French Zaïre
+YAR,North Yemen
+YMD,South Yemen
+ZAI,Zaire
 AIN,Individual Neutral Athletes
-ANZ,Australasia
 COR,Korea
 EOR,Refugee Olympic Team
-EUA,United Team of Germany
-EUN,Unified Team
 IOP,Independent Olympic Participants
 IOA,Independent Olympic Athletes
 IOC,Athletes from Kuwait
@@ -252,3 +248,9 @@ MIX,Mixed-NOCs
 OAR,Olympic Athletes
 ROC,ROC
 XXB,Mixed team
+TPE,Formosa
+TPE,Taiwan
+CZE,Czech Republic
+IPP,FR Yugoslavia
+MKD,Macedonia
+CVD,Cabo Verde
