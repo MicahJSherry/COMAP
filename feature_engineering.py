@@ -420,6 +420,11 @@ def lag_game_mixed_events(olympics_df:pd.DataFrame):
     return olympics_df
 
 def main():
+    # READ THIS !!!
+    # if this flag is true, then ONLY the lag columns will be kept for each feature
+    # otherwise, both the original and lag columns will be kept
+    keep_only_lags = True
+    
     hosts, medal_counts, all_ioc, athletes_data, game_host_countries, game_participating_countries, programs_data = init_basics()
 
     # initialize dataframe if empty (so we haven't done any feature engineering before)
@@ -428,15 +433,19 @@ def main():
     except pd.errors.EmptyDataError as e:
         olympics_df = init_df(game_participating_countries, game_host_countries)
 
+    drop_cols = []
+
     if 'country_total_athletes' not in olympics_df:
         olympics_df = country_total_athletes(olympics_df, game_participating_countries, all_ioc, athletes_data)
-
+        if keep_only_lags:
+            drop_cols.append('country_total_athletes')
     if 'lag_country_total_athletes' not in olympics_df:
         olympics_df = lag_country_total_athletes(olympics_df)
 
     if 'country_total_medals' not in olympics_df:
         olympics_df = country_total_medals(olympics_df, medal_counts, game_participating_countries)
-
+        if keep_only_lags:
+            drop_cols.append('country_total_medals')
     if 'lag_country_total_medals' not in olympics_df:
         olympics_df = lag_country_total_medals(olympics_df)
 
@@ -445,64 +454,73 @@ def main():
 
     if 'country_golds' not in olympics_df:
         olympics_df = country_golds(olympics_df, medal_counts, game_participating_countries)
-
+        if keep_only_lags:
+            drop_cols.append('country_golds')
     if 'lag_country_golds' not in olympics_df:
         olympics_df = lag_country_golds(olympics_df)
 
     if 'country_silvers' not in olympics_df:
         olympics_df = country_silvers(olympics_df, medal_counts, game_participating_countries)
-
+        if keep_only_lags:
+            drop_cols.append('country_silvers')
     if 'lag_country_silvers' not in olympics_df:
         olympics_df = lag_country_silvers(olympics_df)
 
     if 'country_bronzes' not in olympics_df:
         olympics_df = country_bronzes(olympics_df, medal_counts, game_participating_countries)
-
+        if keep_only_lags:
+            drop_cols.append('country_bronzes')
     if 'lag_country_bronzes' not in olympics_df:
         olympics_df = lag_country_bronzes(olympics_df)
 
     if 'country_ranking' not in olympics_df:
         olympics_df = country_rank(olympics_df, medal_counts, game_participating_countries)
-
+        if keep_only_lags:
+            drop_cols.append('country_ranking')
     if 'lag_country_ranking' not in olympics_df:
         olympics_df = lag_country_ranking(olympics_df)
 
     if 'country_female_athletes' not in olympics_df:
         olympics_df = country_female_athletes(olympics_df, athletes_data, game_participating_countries, all_ioc)
-
+        if keep_only_lags:
+            drop_cols.append('country_female_athletes')
     if 'lag_country_female_athletes' not in olympics_df:
         olympics_df = lag_country_female_athletes(olympics_df)
 
     if 'country_male_athletes' not in olympics_df:
         olympics_df = country_male_athletes(olympics_df, athletes_data, game_participating_countries, all_ioc)
-
+        if keep_only_lags:
+            drop_cols.append('country_male_athletes')
     if 'lag_country_male_athletes' not in olympics_df:
         olympics_df = lag_country_male_athletes(olympics_df)
 
-    if 'game_mens_events' not in olympics_df:
-        olympics_df = game_mens_events(olympics_df, athletes_data, game_participating_countries)
+    """ if 'game_mens_events' not in olympics_df:
+        olympics_df = game_mens_events(olympics_df, athletes_data, game_participating_countries) """
 
     """ if 'lag_game_mens_events' not in olympics_df:
         olympics_df = lag_game_mens_events(olympics_df) """
 
-    if 'game_womens_events' not in olympics_df:
-        olympics_df = game_womens_events(olympics_df, athletes_data, game_participating_countries)
+    """ if 'game_womens_events' not in olympics_df:
+        olympics_df = game_womens_events(olympics_df, athletes_data, game_participating_countries) """
 
     """ if 'lag_game_womens_events' not in olympics_df:
         olympics_df = lag_game_womens_events(olympics_df) """
 
-    if 'game_mixed_events' not in olympics_df:
-        olympics_df = game_mixed_events(olympics_df, athletes_data, game_participating_countries)
+    """ if 'game_mixed_events' not in olympics_df:
+        olympics_df = game_mixed_events(olympics_df, athletes_data, game_participating_countries) """
 
     """ if 'lag_game_mixed_events' not in olympics_df:
         olympics_df = lag_game_mixed_events(olympics_df) """
 
     # create game_<sport>_events columns
-    sports = programs_data['Sport'].unique()
+    """ sports = programs_data['Sport'].unique()
     for sport in sports:
         if f'game_{sport.lower()}_events' not in olympics_df:
             olympics_df = game_sport_events(olympics_df, programs_data, game_participating_countries)
-            break
+            break """
+    
+    if len(drop_cols) > 0:
+        olympics_df = olympics_df.drop(labels=drop_cols, axis=1)
 
     print(f'Final dataframe:\n {olympics_df.head(n=25)}')
     olympics_df.to_csv('/home/noahg/competitive_ml/comap/2025/COMAP/preprocessed_data/olympics_data.csv', index=False)
