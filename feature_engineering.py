@@ -32,6 +32,7 @@ Country_Mixed_Events_Enrollment - number of athletes representing a country in m
 '''
 
 import pandas as pd
+import re
 
 def init_basics():
     hosts = pd.read_csv("/home/noahg/competitive_ml/comap/2025/COMAP/preprocessed_data/summerOly_hosts_cleaned.csv")
@@ -240,7 +241,185 @@ def country_male_athletes(olympic_df:pd.DataFrame, athletes_data:pd.DataFrame, g
     olympic_df['country_male_athletes'] = male_athletes_per_country
     return olympic_df
 
-def main():    
+def game_mens_events(olympics_df:pd.DataFrame, athletes_data:pd.DataFrame, game_participating_countries:dict):
+    '''
+    number of men's events at olympics
+    '''
+
+    print('Engineering game_mens_events feature...')
+
+    mens_events_per_games = []
+
+    mens_events = set([])
+
+    for year in game_participating_countries:
+        print(f'Processing number of male athlete events for every country in {year} olympics...')
+        years_mens_events = 0
+        curr_year_data = athletes_data.loc[(athletes_data['Year'] == year)]
+        year_events = curr_year_data['Event'].unique()
+        for event in year_events:
+            if event not in mens_events:
+                found = re.search(r"Men's", event)
+                if found is not None:
+                    mens_events.add(event)
+                    years_mens_events += 1
+            else:
+                years_mens_events += 1
+        num_countries = len(game_participating_countries[year])
+        mens_events_per_games.extend([years_mens_events for _ in range(num_countries)])
+
+    olympics_df['game_mens_events'] = mens_events_per_games
+    return olympics_df
+
+def game_womens_events(olympics_df:pd.DataFrame, athletes_data:pd.DataFrame, game_participating_countries:dict):
+    '''
+    number of women's events at olympics
+    '''
+
+    print('Engineering game_womens_events feature...')
+
+    womens_events_per_games = []
+
+    womens_events = set([])
+
+    for year in game_participating_countries:
+        print(f'Processing number of female athlete events for every country in {year} olympics...')
+        years_womens_events = 0
+        curr_year_data = athletes_data.loc[(athletes_data['Year'] == year)]
+        year_events = curr_year_data['Event'].unique()
+        for event in year_events:
+            if event not in womens_events:
+                found = re.search(r"Women's", event)
+                if found is not None:
+                    womens_events.add(event)
+                    years_womens_events += 1
+            else:
+                years_womens_events += 1
+        num_countries = len(game_participating_countries[year])
+        womens_events_per_games.extend([years_womens_events for _ in range(num_countries)])
+    
+    olympics_df['game_womens_events'] = womens_events_per_games
+    return olympics_df
+
+def game_mixed_events(olympics_df:pd.DataFrame, athletes_data:pd.DataFrame, game_participating_countries:dict):
+    '''
+    number of mixed events at olympics
+    '''
+
+    print('Engineering game_womens_events feature...')
+
+    mixed_events_per_games = []
+
+    mixed_events = set([])
+
+    for year in game_participating_countries:
+        print(f'Processing number of female athlete events for every country in {year} olympics...')
+        years_mixed_events = 0
+        curr_year_data = athletes_data.loc[(athletes_data['Year'] == year)]
+        year_events = curr_year_data['Event'].unique()
+        for event in year_events:
+            if event not in mixed_events:
+                found = re.search(r"Mixed", event)
+                if found is not None:
+                    mixed_events.add(event)
+                    years_mixed_events += 1
+            else:
+                years_mixed_events += 1
+        num_countries = len(game_participating_countries[year])
+        mixed_events_per_games.extend([years_mixed_events for _ in range(num_countries)])
+    
+    olympics_df['game_mixed_events'] = mixed_events_per_games
+    return olympics_df
+
+def lag_country_total_athletes(olympics_df:pd.DataFrame):
+    '''
+    number of total athletes that represented a country in prior olympics
+    '''
+
+    olympics_df['lag_country_total_athletes'] = olympics_df.groupby('competing_country')['country_total_athletes'].shift(1).fillna(0).astype('int')
+    return olympics_df
+
+def lag_country_total_medals(olympics_df:pd.DataFrame):
+    '''
+    number of medals earned by country at prior olympics
+    '''
+
+    olympics_df['lag_country_total_medals'] = olympics_df.groupby('competing_country')['country_total_medals'].shift(1).fillna(0).astype('int')
+    return olympics_df
+
+def lag_country_golds(olympics_df:pd.DataFrame):
+    '''
+    number of golds earned by country in prior olympics
+    '''
+
+    olympics_df['lag_country_golds'] = olympics_df.groupby('competing_country')['country_golds'].shift(1).fillna(value=0).astype('int')
+    return olympics_df
+
+def lag_country_silvers(olympics_df:pd.DataFrame):
+    '''
+    number of silvers earned by country in prior olympics
+    '''
+
+    olympics_df['lag_country_silvers'] = olympics_df.groupby('competing_country')['country_silvers'].shift(1).fillna(value=0).astype('int')
+    return olympics_df
+
+def lag_country_bronzes(olympics_df:pd.DataFrame):
+    '''
+    number of bronzes earned by country in prior olympics
+    '''
+
+    olympics_df['lag_country_bronzes'] = olympics_df.groupby('competing_country')['country_bronzes'].shift(1).fillna(value=0).astype('int')
+    return olympics_df
+
+def lag_country_ranking(olympics_df:pd.DataFrame):
+    '''
+    final rank/place earned by country in prior olympics
+    '''
+
+    olympics_df['lag_country_ranking'] = olympics_df.groupby('competing_country')['country_ranking'].shift(1).fillna(value=-1).astype('int')
+    return olympics_df
+
+def lag_country_female_athletes(olympics_df:pd.DataFrame):
+    '''
+    number of female athletes that represented a country in prior olympics
+    '''
+
+    olympics_df['lag_country_female_athletes'] = olympics_df.groupby('competing_country')['country_female_athletes'].shift(1).fillna(value=0).astype('int')
+    return olympics_df
+
+def lag_country_male_athletes(olympics_df:pd.DataFrame):
+    '''
+    number of male athletes that represented a country in prior olympics
+    '''
+
+    olympics_df['lag_country_male_athletes'] = olympics_df.groupby('competing_country')['country_male_athletes'].shift(1).fillna(value=0).astype('int')
+    return olympics_df
+
+def lag_game_mens_events(olympics_df:pd.DataFrame):
+    '''
+    number of men's events in prior olympics
+    '''
+
+    olympics_df['lag_game_mens_events'] = olympics_df.groupby('year')['game_mens_events'].shift(1).transform(lambda x: x.ffill(limit=1)).fillna(value=0).astype('int')
+    return olympics_df
+
+def lag_game_womens_events(olympics_df:pd.DataFrame):
+    '''
+    number of women's events in prior olympics
+    '''
+
+    olympics_df['lag_game_womens_events'] = olympics_df.groupby('year')['game_womens_events'].shift(1).transform(lambda x: x.ffill(limit=1)).fillna(value=0).astype('int')
+    return olympics_df
+
+def lag_game_mixed_events(olympics_df:pd.DataFrame):
+    '''
+    number of mixed events in prior olympics
+    '''
+
+    olympics_df['lag_game_mixed_events'] = olympics_df.groupby('year')['game_mixed_events'].shift(1).transform(lambda x: x.ffill(limit=1)).fillna(value=0).astype('int')
+    return olympics_df
+
+def main():
     hosts, medal_counts, all_ioc, athletes_data, game_host_countries, game_participating_countries, programs_data = init_basics()
 
     # initialize dataframe if empty (so we haven't done any feature engineering before)
@@ -249,35 +428,74 @@ def main():
     except pd.errors.EmptyDataError as e:
         olympics_df = init_df(game_participating_countries, game_host_countries)
 
-    # create country_total_athletes column
     if 'country_total_athletes' not in olympics_df:
         olympics_df = country_total_athletes(olympics_df, game_participating_countries, all_ioc, athletes_data)
 
-    # create country_total_medals column
+    if 'lag_country_total_athletes' not in olympics_df:
+        olympics_df = lag_country_total_athletes(olympics_df)
+
     if 'country_total_medals' not in olympics_df:
         olympics_df = country_total_medals(olympics_df, medal_counts, game_participating_countries)
 
-    # create country_total_appearances
+    if 'lag_country_total_medals' not in olympics_df:
+        olympics_df = lag_country_total_medals(olympics_df)
+
     if 'country_total_appearances' not in olympics_df:
         country_total_appearances(olympics_df)
 
     if 'country_golds' not in olympics_df:
         olympics_df = country_golds(olympics_df, medal_counts, game_participating_countries)
 
+    if 'lag_country_golds' not in olympics_df:
+        olympics_df = lag_country_golds(olympics_df)
+
     if 'country_silvers' not in olympics_df:
         olympics_df = country_silvers(olympics_df, medal_counts, game_participating_countries)
+
+    if 'lag_country_silvers' not in olympics_df:
+        olympics_df = lag_country_silvers(olympics_df)
 
     if 'country_bronzes' not in olympics_df:
         olympics_df = country_bronzes(olympics_df, medal_counts, game_participating_countries)
 
+    if 'lag_country_bronzes' not in olympics_df:
+        olympics_df = lag_country_bronzes(olympics_df)
+
     if 'country_ranking' not in olympics_df:
         olympics_df = country_rank(olympics_df, medal_counts, game_participating_countries)
+
+    if 'lag_country_ranking' not in olympics_df:
+        olympics_df = lag_country_ranking(olympics_df)
 
     if 'country_female_athletes' not in olympics_df:
         olympics_df = country_female_athletes(olympics_df, athletes_data, game_participating_countries, all_ioc)
 
+    if 'lag_country_female_athletes' not in olympics_df:
+        olympics_df = lag_country_female_athletes(olympics_df)
+
     if 'country_male_athletes' not in olympics_df:
         olympics_df = country_male_athletes(olympics_df, athletes_data, game_participating_countries, all_ioc)
+
+    if 'lag_country_male_athletes' not in olympics_df:
+        olympics_df = lag_country_male_athletes(olympics_df)
+
+    if 'game_mens_events' not in olympics_df:
+        olympics_df = game_mens_events(olympics_df, athletes_data, game_participating_countries)
+
+    """ if 'lag_game_mens_events' not in olympics_df:
+        olympics_df = lag_game_mens_events(olympics_df) """
+
+    if 'game_womens_events' not in olympics_df:
+        olympics_df = game_womens_events(olympics_df, athletes_data, game_participating_countries)
+
+    """ if 'lag_game_womens_events' not in olympics_df:
+        olympics_df = lag_game_womens_events(olympics_df) """
+
+    if 'game_mixed_events' not in olympics_df:
+        olympics_df = game_mixed_events(olympics_df, athletes_data, game_participating_countries)
+
+    """ if 'lag_game_mixed_events' not in olympics_df:
+        olympics_df = lag_game_mixed_events(olympics_df) """
 
     # create game_<sport>_events columns
     sports = programs_data['Sport'].unique()
@@ -286,6 +504,7 @@ def main():
             olympics_df = game_sport_events(olympics_df, programs_data, game_participating_countries)
             break
 
+    print(f'Final dataframe:\n {olympics_df.head(n=25)}')
     olympics_df.to_csv('/home/noahg/competitive_ml/comap/2025/COMAP/preprocessed_data/olympics_data.csv', index=False)
 
 if __name__ == '__main__':
